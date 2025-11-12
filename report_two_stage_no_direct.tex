@@ -1,0 +1,229 @@
+\documentclass[journal,onecolumn]{IEEEtran}
+\usepackage{amsmath,amsfonts,amssymb,bm}
+\usepackage{geometry}
+\geometry{margin=1in}
+\title{Two-Stage Scattering Matrix Design with Direct Link}
+\author{Hesam Nezhadmohammad}
+\date{}
+
+\begin{document}
+\maketitle
+
+\section{System Model in the Original Paper}
+
+Consider the BD-RIS aided MU-MISO system in \cite{Fang24}, where a BS with $L$ antennas serves $K$ single-antenna users through a BD-RIS with $N$ elements. The paper models three channels:
+\begin{itemize}
+    \item the direct BS--user channel $\mathbf{G} \in \mathbb{C}^{L \times K}$,
+    \item the BS--RIS channel $\mathbf{E} \in \mathbb{C}^{N \times L}$,
+    \item the RIS--user channel $\mathbf{H} \in \mathbb{C}^{N \times K}$.
+\end{itemize}
+The BD-RIS is described by an $N \times N$ scattering matrix $\bm{\Theta}$ that is required, for the fully connected architecture, to satisfy the symmetric unitary constraints
+\begin{equation}
+    \mathbf{\Theta} = \mathbf{\Theta}^T,\,\mathbf{\Theta}^H \mathbf{\Theta} = \mathbf{I}_{N}.
+\end{equation}
+
+Let the effective channel be
+\begin{equation}
+    \mathbf{F}(\bm{\Theta}) = \mathbf{G}^H + \mathbf{H}^H \bm{\Theta} \mathbf{E}
+    \label{eq:effective-channel}
+\end{equation}
+which is exactly the sum of the direct link and the RIS-reflected link. To obtain a passive beamforming matrix that is good for the later active beamforming step, \cite{Fang24} relaxes the original nonconvex constrained problem to the following Frobenius-norm maximization:
+
+\begin{subequations}
+    \label{eq:relaxed-problem}
+    \begin{align}
+        \max_{\mathbf{\Theta}}~~& f(\mathbf{\Theta}) \triangleq \left\| \mathbf{G}^H + \mathbf{H}^H \bm{\Theta} \mathbf{E} \right\|_F^2\\
+        \mathrm{s.t.}~~~&\|\mathbf{\Theta}\|_F^2 \le N.
+    \end{align}
+\end{subequations}
+
+% \begin{equation}
+%     \max_{\bm{\Theta}} \; f(\bm{\Theta}) \triangleq \left\| \mathbf{G}^H + \mathbf{H}^H \bm{\Theta} \mathbf{E} \right\|_F^2
+%     \quad \text{s.t.} \quad \|\bm{\Theta}\|_F^2 \le N.
+%     \label{eq:relaxed-problem}
+% \end{equation}
+This is equation (3) in the paper, written here directly in matrix form. The paper then vectorizes it and reaches the same form. The key observation is that $f(\bm{\Theta})$ is smooth and quadratic in $\bm{\Theta}$.
+
+\section{Gradient in the original model}
+
+Define
+\begin{equation}
+    \mathbf{A}(\bm{\Theta}) \triangleq \mathbf{G}^H + \mathbf{H}^H \bm{\Theta} \mathbf{E}.
+\end{equation}
+Then
+\begin{equation}
+    f(\bm{\Theta}) = \|\mathbf{A}(\bm{\Theta})\|_F^2 = \operatorname{Tr}\left( \mathbf{A}(\bm{\Theta}) \mathbf{A}(\bm{\Theta})^H \right).
+\end{equation}
+Because $\mathbf{A}(\bm{\Theta})$ is affine in $\bm{\Theta}$, differentiating at $\bm{\Theta} = \mathbf{0}$ is simple. Let us write explicitly
+\begin{equation}
+    \mathbf{A}(\mathbf{0}) = \mathbf{G}^H,
+    \qquad
+    \left. \frac{\partial \mathbf{A}}{\partial \bm{\Theta}} \right|_{\bm{\Theta}=\mathbf{0}} : \Delta \bm{\Theta} \mapsto \mathbf{H}^H \Delta \bm{\Theta} \mathbf{E}.
+\end{equation}
+Using standard matrix calculus for a function of the form $\|\mathbf{G}^H + \mathbf{H}^H \bm{\Theta} \mathbf{E}\|_F^2$, the gradient at $\bm{\Theta}=\mathbf{0}$ is
+\begin{equation}
+    \nabla_{\bm{\Theta}} f(\mathbf{0}) = \mathbf{H} \mathbf{G}^H \mathbf{E}^H,
+    \label{eq:original-gradient}
+\end{equation}
+which is exactly the expression the paper gives as equation (6) \cite{Fang24}.
+
+The paper then chooses the direction
+\begin{equation}
+    \mathbf{D}_0 = \nabla_{\bm{\Theta}} f(\mathbf{0}) = \mathbf{H} \mathbf{G}^H \mathbf{E}^H
+\end{equation}
+and rescales it to satisfy the sphere constraint $\|\bm{\Theta}\|_F^2 \le N$. Finally, because the actual feasible set for a fully connected BD-RIS is the symmetric unitary set, the paper projects this matrix onto that set by the symmetric-unitary projection:
+\begin{equation}
+    \bm{\Theta} = \operatorname{symuni}\bigl( \mathbf{H} \mathbf{G}^H \mathbf{E}^H \bigr).
+    \label{eq:original-symuni}
+\end{equation}
+This is the form reported as equation (15) in the paper \cite{Fang24}.
+
+\section{Modified system: no direct BS--user channel}
+
+Now suppose the direct channel is no longer present. That is, the term $\mathbf{G}^H$ in \eqref{eq:effective_channel} is removed and the users are served solely through the cascaded BS--RIS--user path. The effective channel reduces to
+\begin{equation}
+    \mathbf{F}_{\text{no-dir}}(\bm{\Theta}) = \mathbf{H}^H \bm{\Theta} \mathbf{E}.
+    \label{eq:effective-no-direct}
+\end{equation}
+A natural analogue of the relaxed problem \eqref{eq:relaxed-problem} is then
+\begin{subequations}
+    \begin{align}
+        \max_{\mathbf{\Theta}} ~~ &f_{\text{no-dir}}(\mathbf{\Theta}) \triangleq \left\| \mathbf{H}^H \mathbf{\Theta} \mathbf{E} \right\|_F^2\\
+        \text{s.t.} ~~~& \|\mathbf{\Theta}\|_F^2 \le N.
+        \label{eq:relaxed-no-direct}
+    \end{align}
+\end{subequations}
+
+\subsection{Why the old gradient cannot be used}
+
+If we differentiate \eqref{eq:relaxed-no-direct} at the same point $\bm{\Theta}_0 = \mathbf{0}$, we get
+\begin{equation}
+    \mathbf{F}_{\text{no-dir}}(\mathbf{0}) = \mathbf{0}
+    \quad\Rightarrow\quad
+    f_{\text{no-dir}}(\mathbf{0}) = 0.
+\end{equation}
+Let us compute its gradient. Define
+\begin{equation}
+    \mathbf{B}(\bm{\Theta}) \triangleq \mathbf{H}^H \bm{\Theta} \mathbf{E},
+\end{equation}
+so that
+\begin{equation}
+    f_{\text{no-dir}}(\bm{\Theta}) = \operatorname{Tr}\bigl( \mathbf{B}(\bm{\Theta}) \mathbf{B}(\bm{\Theta})^H \bigr).
+\end{equation}
+The differential is
+\begin{equation}
+    \mathrm{d} f_{\text{no-dir}} = 2 \operatorname{Re} \left\{ \operatorname{Tr}\bigl( \mathbf{B}(\bm{\Theta})^H \, \mathbf{H}^H (\mathrm{d}\bm{\Theta}) \mathbf{E} \bigr) \right\}.
+\end{equation}
+At $\bm{\Theta} = \mathbf{0}$ we have $\mathbf{B}(\mathbf{0}) = \mathbf{0}$, so the whole differential vanishes:
+\begin{equation}
+    \left. \nabla_{\bm{\Theta}} f_{\text{no-dir}}(\bm{\Theta}) \right|_{\bm{\Theta}=\mathbf{0}} = \mathbf{0}_{N \times N}.
+    \label{eq:zero-gradient}
+\end{equation}
+This is the key difference from the original model. Once we remove $\mathbf{G}$, the origin becomes a flat point and no longer yields a usable direction.
+
+\subsection{Choosing a feasible initial point}
+
+A simple way to recover a meaningful direction is to evaluate the gradient at a \emph{feasible} point, not at the origin. A natural feasible point for the fully connected BD-RIS is
+\begin{equation}
+    \bm{\Theta}_0 = \mathbf{I}_N,
+\end{equation}
+which is symmetric and unitary. Evaluate $f_{\text{no-dir}}$ at $\bm{\Theta}_0$:
+\begin{equation}
+    f_{\text{no-dir}}(\mathbf{I}_N) = \|\mathbf{H}^H \mathbf{E}\|_F^2.
+\end{equation}
+Now differentiate $f_{\text{no-dir}}(\bm{\Theta})$ at $\bm{\Theta} = \mathbf{I}_N$. Using
+\begin{equation}
+    \mathbf{B}(\bm{\Theta}) = \mathbf{H}^H \bm{\Theta} \mathbf{E},
+    \qquad
+    \mathrm{d} \mathbf{B} = \mathbf{H}^H (\mathrm{d}\bm{\Theta}) \mathbf{E},
+\end{equation}
+we have
+\begin{align}
+    \mathrm{d} f_{\text{no-dir}}
+    &= 2 \operatorname{Re} \left\{ \operatorname{Tr}\bigl( \mathbf{B}(\bm{\Theta})^H \, \mathbf{H}^H (\mathrm{d}\bm{\Theta}) \mathbf{E} \bigr) \right\} \\
+    &= 2 \operatorname{Re} \left\{ \operatorname{Tr}\bigl( \mathbf{E}^H \bm{\Theta}^H \mathbf{H} \, \mathbf{H}^H (\mathrm{d}\bm{\Theta}) \mathbf{E} \bigr) \right\}.
+\end{align}
+At $\bm{\Theta} = \mathbf{I}_N$, this becomes
+\begin{equation}
+    \left. \mathrm{d} f_{\text{no-dir}} \right|_{\bm{\Theta}=\mathbf{I}_N}
+    = 2 \operatorname{Re} \left\{ \operatorname{Tr}\bigl( \mathbf{E}^H \mathbf{H} \, \mathbf{H}^H (\mathrm{d}\bm{\Theta}) \mathbf{E} \bigr) \right\}.
+\end{equation}
+By cyclic property of the trace,
+\begin{equation}
+    \operatorname{Tr}\bigl( \mathbf{E}^H \mathbf{H} \, \mathbf{H}^H (\mathrm{d}\bm{\Theta}) \mathbf{E} \bigr)
+    = \operatorname{Tr}\bigl( \mathbf{H} \mathbf{H}^H \mathbf{E} \mathbf{E}^H (\mathrm{d}\bm{\Theta}) \bigr).
+\end{equation}
+Therefore the gradient at $\bm{\Theta}=\mathbf{I}_N$ is
+\begin{equation}
+    \left. \nabla_{\bm{\Theta}} f_{\text{no-dir}}(\bm{\Theta}) \right|_{\bm{\Theta}=\mathbf{I}_N}
+    = 2 \, \mathbf{H} \mathbf{H}^H \mathbf{E} \mathbf{E}^H.
+    \label{eq:gradient-no-direct}
+\end{equation}
+The scalar factor 2 is irrelevant for the projection step (the paper itself notes that scaling does not change the symmetric-unitary projection \cite{Fang24}. Hence the direction is
+\begin{equation}
+    \mathbf{Z} \triangleq \mathbf{H} \mathbf{H}^H \mathbf{E} \mathbf{E}^H.
+    \label{eq:Z-no-direct}
+\end{equation}
+
+\subsection{Low-complexity solution without the direct link}
+
+The paper’s logic for the original model was:
+\begin{enumerate}
+    \item form a matrix that is proportional to the gradient at the chosen point;
+    \item scale it to lie on the sphere $\|\bm{\Theta}\|_F^2 = N$;
+    \item project it onto the symmetric unitary set by $\operatorname{symuni}(\cdot)$;
+    \item use the resulting $\bm{\Theta}$ in the second stage.
+\end{enumerate}
+We can carry out the same logic here. Since $\operatorname{symuni}(\cdot)$ is homogeneous (i.e. $\operatorname{symuni}(\rho \mathbf{Z}) = \operatorname{symuni}(\mathbf{Z})$ for any $\rho \neq 0$, see Lemma 1 in the paper \cite{Fang24}), we can skip the explicit scaling and directly write the low-complexity passive beamforming matrix as
+\begin{equation}
+    \bm{\Theta}_{\text{no-dir}} = \operatorname{symuni}\bigl( \mathbf{H} \mathbf{H}^H \mathbf{E} \mathbf{E}^H \bigr).
+    \label{eq:theta-no-direct}
+\end{equation}
+This is the exact analogue of equation (15) in \cite{Fang24}, with
+\begin{equation}
+    \mathbf{H} \mathbf{G}^H \mathbf{E}^H
+    \quad \text{replaced by} \quad
+    \mathbf{H} \mathbf{H}^H \mathbf{E} \mathbf{E}^H.
+\end{equation}
+
+
+\section{Group-connected case}
+
+The paper extends the fully connected solution to the group-connected case by first forcing the matrix to be block diagonal with $N_g \times N_g$ blocks, and then applying $\operatorname{symuni}(\cdot)$ on each block, see its equations (16)--(17) \cite{Fang24}. If we denote by
+\begin{equation}
+    \operatorname{blkdiag}_{N_g}(\mathbf{Z})
+\end{equation}
+the operation that zeroes all off-group entries of $\mathbf{Z}$ (i.e. the Hadamard product with a block mask), then the group-connected analogue of \eqref{eq:theta-no-direct} is
+\begin{equation}
+    \bm{\Theta}_{\text{no-dir}}^{\text{(group)}}
+    = \operatorname{diag} \bigl(
+        \operatorname{symuni}(\mathbf{Z}_1),
+        \dots,
+        \operatorname{symuni}(\mathbf{Z}_G)
+      \bigr),
+    \label{eq:theta-no-direct-group}
+\end{equation}
+where
+\begin{equation}
+    \operatorname{blkdiag}_{N_g} \bigl( \mathbf{H} \mathbf{H}^H \mathbf{E} \mathbf{E}^H \bigr)
+    = \operatorname{diag}(\mathbf{Z}_1, \dots, \mathbf{Z}_G),
+\end{equation}
+$G = N / N_g$, and each $\mathbf{Z}_g \in \mathbb{C}^{N_g \times N_g}$. This is exactly what MATLAB function
+\texttt{group\_symuni} does: it masks the matrix to a block-diagonal one and then calls \texttt{symuni} on the result.
+
+\section{Discussion}
+
+The essential mathematical difference between the original paper’s setting and the ``no-direct-link’’ setting is this:
+\begin{itemize}
+    \item With $\mathbf{G} \neq \mathbf{0}$, the objective has a nonzero linear term at $\bm{\Theta}=\mathbf{0}$, which immediately produces the rank-$N$ matrix $\mathbf{H} \mathbf{G}^H \mathbf{E}^H$ as a ``good'' direction.
+    \item With $\mathbf{G} = \mathbf{0}$, the objective is purely quadratic in $\bm{\Theta}$ and the origin becomes flat. To preserve the same low-complexity flavour, we move to a feasible point (the identity) and take the gradient there, which gives a matrix with the same structure but with channel correlation terms only.
+\end{itemize}
+Because the symmetric-unitary projection is a nearest-point projection in Frobenius norm onto the feasible BD-RIS set, using \eqref{eq:theta-no-direct} is consistent with the logic of \cite{Fang24}: we take the dominant information embedded in the channels and project it to the physically realisable scattering matrix.
+
+
+
+\bibliographystyle{IEEEtran}
+\bibliography{IEEEabrv,refs}
+
+
+\end{document}
