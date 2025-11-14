@@ -1,7 +1,11 @@
 \documentclass[journal,onecolumn]{IEEEtran}
 \usepackage{amsmath,amsfonts,amssymb,bm}
 \usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{epstopdf}
 \geometry{margin=1in}
+
 \title{Two-Stage Scattering Matrix Design with Direct Link}
 \author{Hesam Nezhadmohammad}
 \date{}
@@ -210,6 +214,16 @@ where
 \end{equation}
 $G = N / N_g$, and each $\mathbf{Z}_g \in \mathbb{C}^{N_g \times N_g}$. This is exactly what MATLAB function
 \texttt{group\_symuni} does: it masks the matrix to a block-diagonal one and then calls \texttt{symuni} on the result.
+The result of the simulations is shown below:
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=0.42\textwidth]{two_stage.eps}
+    % \vspace{-0.25cm}
+    \caption{Comparison of sum-rate across fully-connected ``FC'', group-connected ``GC'' BD-RIS architectures when the direct link is present versus when it is not.}
+\label{fig:two-stage}
+\end{figure}
+
 
 \section{Discussion}
 
